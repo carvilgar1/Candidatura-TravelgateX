@@ -65,7 +65,10 @@ def hotel_room_formatter(json_hotels) -> dict:
             room = dict()
             room['name'] = room_information['name']
             room['room_type']  = room_type_normalization(room_information['code'])
-            room['meal_plan'] = [{'name':meal_plans_normalization('mp'), 'price':0} for x in json_meal_plans_information['meal_plans']]
+            room['meal_plans'] = [{'name': meal_plans_normalization(meal_plan['code']), 'price': x['price']} 
+                for meal_plan in json_meal_plans_information['meal_plans'] if available_hotel in meal_plan['hotel']
+                for x in meal_plan['hotel'][available_hotel] if room['room_type'] == room_type_normalization(x['room'])
+                ]
             
             for hotel in json_hotels['hotels']:
                 if hotel['code'] == available_hotel:
