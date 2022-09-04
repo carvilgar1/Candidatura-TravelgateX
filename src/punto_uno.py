@@ -4,9 +4,16 @@ from enum import Enum
 
 from urllib.request import urlopen
 
-class RoomType(Enum):
+
+class RoomType(str, Enum):
     STANDARD = 'STANDARD'
     SUITE = 'SUITE'
+
+class MealPlan(str, Enum):
+    FULL_BOARD = 'FULL_BOARD'
+    HALF_BOARD = 'HALF_BOARD'
+    ACCOMMODATION_ONLY = 'ACCOMMODATION_ONLY'
+    ACCOMMODATION_AND_BREAKFAST = 'ACCOMMODATION_AND_BREAKFAST'
 
 #API endpoints
 url_api_hoteles_atalaya = 'http://www.mocky.io/v2/5e4a7e4f2f00005d0097d253'
@@ -21,15 +28,29 @@ json_rooms_information = json.loads(urlopen(url_rooms_information).read())
 json_meal_plans_information = json.loads(urlopen(url_meal_plans_information).read())
 json_available_regimens = json.loads(urlopen(url_available_regimens).read())
 
-def room_type_normalization(room_str) -> str:
+def room_type_normalization(room_str) -> RoomType:
     '''
     This function converts the string that contains room's information 
-    into standardized Enum type of the company and returns a serialized value.
+    into standardized Enum type of the company.
     '''
     if room_str in {'st', 'standard'}:
-        return RoomType.STANDARD.value
+        return RoomType.STANDARD
     else:
-        return RoomType.SUITE.value
+        return RoomType.SUITE
+
+def meal_plans_normalization(meal_plan_str) -> MealPlan:
+    '''
+    This function converts the string that contains meal plans
+    into standardized Enum type of the company.
+    '''
+    if meal_plan_str == 'pc':
+        return MealPlan.FULL_BOARD
+    elif meal_plan_str == 'mp':
+        return MealPlan.HALF_BOARD
+    elif meal_plan_str == 'sa':
+        return MealPlan.ACCOMMODATION_ONLY
+    else:
+        return MealPlan.ACCOMMODATION_AND_BREAKFAST
 
 def hotel_room_formatter(json_hotels) -> dict:
     '''
@@ -44,8 +65,8 @@ def hotel_room_formatter(json_hotels) -> dict:
             room = dict()
             room['name'] = room_information['name']
             room['room_type']  = room_type_normalization(room_information['code'])
-            room['meal_plan'] = 0
-            room['price'] = 0
+            room['meal_plan'] = [{'name':meal_plans_normalization('mp'), 'price':0} for x in json_meal_plans_information['meal_plans']]
+            
             for hotel in json_hotels['hotels']:
                 if hotel['code'] == available_hotel:
                     if 'rooms' in hotel:
