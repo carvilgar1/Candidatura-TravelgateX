@@ -52,13 +52,10 @@ def meal_plans_normalization(meal_plan_str) -> MealPlan:
     else:
         return MealPlan.ACCOMMODATION_AND_BREAKFAST
 
-def hotel_room_formatter(json_hotels) -> dict:
+def atalaya_hotel_standardization() -> None:
     '''
     This function blend the data from json_rooms_information, json_meal_plans_information and json_available_regimens to a unique 
     hotel JSON.
-
-    @param json_hotels: Hotel dictionary where the room information is supposed to be injected
-    @return: It returns a dictionary of hotels with their rooms associated
     '''
     for room_information in json_rooms_information['rooms_type']:
         for available_hotel in room_information['hotels']:
@@ -70,17 +67,33 @@ def hotel_room_formatter(json_hotels) -> dict:
                 for x in meal_plan['hotel'][available_hotel] if room['room_type'] == room_type_normalization(x['room'])
                 ]
             
-            for hotel in json_hotels['hotels']:
+            for hotel in json_api_hoteles_atalaya['hotels']:
                 if hotel['code'] == available_hotel:
                     if 'rooms' in hotel:
                         hotel['rooms'].append(room)
                     else:
                         hotel['rooms'] = [room]
-    return json_hotels
 
+
+def hotel_resort_standardization() -> None:
+    for hotel in json_api_resort_hoteles['hotels']:
+        for room in hotel['rooms']:
+            room['room_type']  = room_type_normalization(room['code'])
+            del room['code']
+            for meal_plan in json_available_regimens['regimenes']:
+                if meal_plan['hotel'] == hotel['code'] and room['room_type'] == room_type_normalization(meal_plan['room_type']):
+                    if 'meal_plans' in meal_plan:
+                        room['meal_plans'].append( {'name': meal_plans_normalization(meal_plan['code']), 'price': meal_plan['price']} )
+                    else:
+                        room['meal_plans'] = [ {'name': meal_plans_normalization(meal_plan['code']), 'price': meal_plan['price']} ]
 
 def punto_uno() -> str:
-    return json.dumps(hotel_room_formatter(json_api_hoteles_atalaya), indent=1)
+    atalaya_hotel_standardization()
+    hotel_resort_standardization()
+    json_api_hoteles_atalaya['hotels'].extend(json_api_resort_hoteles['hotels'])
+    with open('punto_uno.json', 'w+') as f:
+        f.write(json.dumps(json_api_hoteles_atalaya, indent=1))
+    return json.dumps(json_api_hoteles_atalaya, indent=1)
 
 
 
