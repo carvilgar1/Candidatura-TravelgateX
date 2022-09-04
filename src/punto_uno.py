@@ -1,5 +1,12 @@
 import json
+
+from enum import Enum
+
 from urllib.request import urlopen
+
+class RoomType(Enum):
+    STANDARD = 'STANDARD'
+    SUITE = 'SUITE'
 
 #API endpoints
 url_api_hoteles_atalaya = 'http://www.mocky.io/v2/5e4a7e4f2f00005d0097d253'
@@ -14,6 +21,16 @@ json_rooms_information = json.loads(urlopen(url_rooms_information).read())
 json_meal_plans_information = json.loads(urlopen(url_meal_plans_information).read())
 json_available_regimens = json.loads(urlopen(url_available_regimens).read())
 
+def room_type_normalization(room_str) -> str:
+    '''
+    This function converts the string that contains room's information 
+    into standardized Enum type of the company and returns a serialized value.
+    '''
+    if room_str in {'st', 'standard'}:
+        return RoomType.STANDARD.value
+    else:
+        return RoomType.SUITE.value
+
 def hotel_room_formatter(json_hotels) -> dict:
     '''
     This function blend the data from json_rooms_information, json_meal_plans_information and json_available_regimens to a unique 
@@ -26,7 +43,7 @@ def hotel_room_formatter(json_hotels) -> dict:
         for available_hotel in room_information['hotels']:
             room = dict()
             room['name'] = room_information['name']
-            room['room_type']  = room_information['code'][:2]
+            room['room_type']  = room_type_normalization(room_information['code'])
             room['meal_plan'] = 0
             room['price'] = 0
             for hotel in json_hotels['hotels']:
