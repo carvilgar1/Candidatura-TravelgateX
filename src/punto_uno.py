@@ -22,7 +22,8 @@ url_rooms_information = 'https://run.mocky.io/v3/132af02e-8beb-438f-ac6e-a9902bc
 url_meal_plans_information = 'http://www.mocky.io/v2/5e4a7e282f0000490097d252'
 url_available_regimens = 'http://www.mocky.io/v2/5e4a7dd02f0000290097d24b'
 
-json_api_hoteles_atalaya = json.loads(urlopen(url_api_hoteles_atalaya).read()) #JSON formatted gotten from the previous urls are converted to Python object
+#JSON formatted gotten from the previous urls are converted to Python object
+json_api_hoteles_atalaya = json.loads(urlopen(url_api_hoteles_atalaya).read()) 
 json_api_resort_hoteles = json.loads(urlopen(url_api_resort_hoteles).read())
 json_rooms_information = json.loads(urlopen(url_rooms_information).read())
 json_meal_plans_information = json.loads(urlopen(url_meal_plans_information).read())
@@ -40,7 +41,7 @@ def room_type_normalization(room_str) -> RoomType:
 
 def meal_plans_normalization(meal_plan_str) -> MealPlan:
     '''
-    This function converts the string that contains meal plans
+    This function converts the string that represents a meal plan
     into standardized Enum type of the company.
     '''
     if meal_plan_str == 'pc':
@@ -54,17 +55,20 @@ def meal_plans_normalization(meal_plan_str) -> MealPlan:
 
 def atalaya_hotel_standardization() -> None:
     '''
-    This function blend the data from json_rooms_information, json_meal_plans_information and json_available_regimens to a unique 
-    hotel JSON.
+    This function takes the data provided by url_rooms_information, iterates over it
+    and creates a temporary dictionary with room information and meal plans (provided by json_meal_plans_information). Finally, the new
+    dictionary is embedded along with the rest of the hotel information.
     '''
     for room_information in json_rooms_information['rooms_type']:
         for available_hotel in room_information['hotels']:
             room = dict()
             room['name'] = room_information['name']
             room['room_type']  = room_type_normalization(room_information['code'])
-            room['meal_plans'] = [{'name': meal_plans_normalization(meal_plan['code']), 'price': x['price']} 
+            room['meal_plans'] = [{'name': meal_plans_normalization(meal_plan['code']), 'price': room_price['price']} 
+                #Meal plans, whose hotel matches the hotel of the room being formatted, are filtered
                 for meal_plan in json_meal_plans_information['meal_plans'] if available_hotel in meal_plan['hotel']
-                for x in meal_plan['hotel'][available_hotel] if room['room_type'] == room_type_normalization(x['room'])
+                #This second filter selects the meal plans whose room_type match with current room
+                for room_price in meal_plan['hotel'][available_hotel] if room['room_type'] == room_type_normalization(room_price['room'])
                 ]
             
             for hotel in json_api_hoteles_atalaya['hotels']:
@@ -76,6 +80,10 @@ def atalaya_hotel_standardization() -> None:
 
 
 def hotel_resort_standardization() -> None:
+    '''
+    This function inserts the missing information about meal plans of hotel resort API, which
+    is found in url_available_regimens variable, to meet with company's API standard.
+    '''
     for hotel in json_api_resort_hoteles['hotels']:
         for room in hotel['rooms']:
             room['room_type']  = room_type_normalization(room['code'])
