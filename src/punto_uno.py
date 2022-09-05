@@ -95,13 +95,17 @@ def hotel_resort_standardization() -> None:
                     else:
                         room['meal_plans'] = [ {'name': meal_plans_normalization(meal_plan['code']), 'price': meal_plan['price']} ]
 
-def punto_uno() -> str:
+def punto_uno() -> dict:
+    '''
+    This function returns the standardized JSON demanded by the Company.
+    It also create a local file with .json extension.
+    '''
     atalaya_hotel_standardization()
     hotel_resort_standardization()
     json_api_hoteles_atalaya['hotels'].extend(json_api_resort_hoteles['hotels'])
     with open('punto_uno.json', 'w+') as f:
         f.write(json.dumps(json_api_hoteles_atalaya, indent=1))
-    return json.dumps(json_api_hoteles_atalaya, indent=1)
+    return json_api_hoteles_atalaya
 
 
 
