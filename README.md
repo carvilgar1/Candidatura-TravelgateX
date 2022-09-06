@@ -7,10 +7,10 @@
 
 ## Set-Up
 Once You have cloned the repository you have to iniziate de REST server by introducin the following command on your shell: ```python src\main.py``` When the server starts up you should see de next exit from the console
-![Console exit](https://im.ge/i/OZ6Ngf)
+![Console exit](https://i.im.ge/2022/09/07/OZ6Ngf.3.png)
 ## Usage
 Base URL: http://127.0.0.1:5000
 - **[GET]** /hotelList : Get the list with all standardized hotel. This endpoint corresponds with the first code challenge.
-![ first code callgange](https://im.ge/i/OZNFR1)
+![ first code callgange](https://i.im.ge/2022/09/07/OZNFR1.1.png)
 - **[GET]** /itineraryCancun/{budget} : Get the best itinerary to stay 3 nights in Malaga and 5 nights in Cancun with a determinate budget. This endpoint corresponds with the second code challenge.
-![second code callgange](https://im.ge/i/OZN94S)
+![second code callgange](https://i.im.ge/2022/09/07/OZN94S.2.png)
