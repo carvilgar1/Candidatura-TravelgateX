@@ -85,6 +85,7 @@ def resort_hotel_api_standardization() -> None:
     is found in url_available_regimens variable, to meet with company's API standard.
     '''
     for hotel in json_api_resort_hoteles['hotels']:
+        hotel['city'] = hotel.pop('location')
         for room in hotel['rooms']:
             room['room_type']  = room_type_normalization(room['code'])
             del room['code']
