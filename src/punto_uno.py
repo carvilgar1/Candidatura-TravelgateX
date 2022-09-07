@@ -95,16 +95,14 @@ def resort_hotel_api_standardization() -> dict:
         formatted_hotel['name'] = hotel['name']
         formatted_hotel['city'] = hotel['location']
         formatted_hotel['rooms'] = []
-        for room_information in hotel['rooms']:
-            room = dict()
-            room['name'] = room_information['name']
-            room['room_type']  = room_type_normalization(room_information['code'])
-            for regime in json_available_regimens['regimenes']:
-                if (room['room_type'] == room_type_normalization(regime['room_type']) 
-                        and regime['hotel'] == hotel['code']):
-                    room['meal_plan']  = meal_plans_normalization(regime['code'])
-                    room['price']  = regime['price']
-            formatted_hotel['rooms'].append(room)
+        for regime in json_available_regimens['regimenes']:
+            if regime['hotel'] == hotel['code']:
+                room = dict()
+                room['name'] = regime['name']
+                room['room_type']  = room_type_normalization(regime['code'])
+                room['meal_plan']  = meal_plans_normalization(regime['code'])
+                room['price']  = regime['price']
+                formatted_hotel['rooms'].append(room)
         result['hotels'].append(formatted_hotel)
     return result
 
